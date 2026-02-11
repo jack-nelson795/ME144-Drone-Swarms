@@ -1,5 +1,6 @@
 ME144 / ME244 Project Workspace
 ===============================
+![swarm_control_emergent](https://github.com/user-attachments/assets/bf6f00ca-2b65-4533-8bfe-4f5a4942547d)
 
 This repository contains Project 1 (optimization methods) and Project X (3D emergent swarm control). Project X is a sandbox for Project 3 ideas; Project 1 is complete and polished.
 
