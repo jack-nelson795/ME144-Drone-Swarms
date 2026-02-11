@@ -1,0 +1,416 @@
+% project1.tex
+% Document setup
+\RequirePackage{fix-cm}
+\documentclass{article}
+\usepackage{preamble}
+
+%===============================%
+%=============Inputs============%
+%===============================%
+\newcommand{\studentname}{Jack Nelson}
+
+%===============================%
+%====Make Solutions Visible=====%
+%===============================%
+\showsolutionstrue
+
+%===============================%
+%=============Figures===========%
+%===============================%
+% Folders where images are located:
+\graphicspath{{./figures/}{./projects/project1/output/figures/}{./LaTeX/}}
+
+%==============================%
+%=====Beginning of Document====%
+%==============================%
+\begin{document}
+\pagestyle{mypagestyle}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Project 1: Newton's Method and Genetic Algorithm
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\project{1}{Newton's Method and Genetic Algorithm}{Friday, Jan 30th @ 11:59 PM PST}[Add instructions]
+
+\begin{itemize}
+\item{\textbf{Learning Goal}: understanding classical optimization and genetic machine-learning.}
+
+\item{\textbf{Abstract}: This project is designed to highlight the very basics of optimization and machine-learning.
+There are two parts: (1) classical gradient-based optimization and (2) genetic machine learning algorithms.}
+
+\item{\textbf{Reading}:
+This project directly corresponds to Chapter 1 in the course reader.}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{MACHINE-LEARNING-DIGITAL-TWIN.eps}
+\caption{Machine-learning and digital-twin models.}
+\label{tarek-project-1}
+\end{figure}
+\end{itemize}
+
+\begin{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item {\bf Newton's Method.} In mathematics, we optimize a function $f(x)$ by choosing from a set of candidate inputs $x$ and finding the $x$ which either maximizes or minimizes $f(x)$, sometimes under a set of constraints. In this course, we will simply refer to these functions as {\it cost functions} or {\it objective functions}, $\Pi(x)$.
+
+In advanced manufacturing, cost functions are often non-convex in the design parameter space and often non-smooth, so their optimization is usually difficult with direct application of gradient methods. As a reference point, however, in this problem you will code Newton's method, a gradient-based method for later comparison to the genetic algorithm.
+
+The two objective functions to be minimized in this assignment are:
+\begin{align}
+\Pi_{a}(x) &= x^{2} \\
+\Pi_{b}(x) &= \left( x + \frac{\pi}{2}\sin(x) \right)^{2}
+\end{align}
+
+\begin{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1a
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Plot both objective functions on the same axes on the domain $-20 \leq x \leq 20$.
+
+\begin{answer}
+Figure~\ref{fig:objectives} shows $\Pi_a(x)$ and $\Pi_b(x)$ on $[-20,20]$. The quadratic $\Pi_a(x)=x^2$ is convex with a single global minimum at $x=0$. The function $\Pi_b(x)$ is nonnegative but oscillatory due to the $\sin(x)$ term, which produces multiple local minima/maxima and makes the landscape effectively non-convex over the domain.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{objectives.png}
+\caption{Objective functions $\Pi_a(x)$ and $\Pi_b(x)$ on $[-20,20]$.}
+\label{fig:objectives}
+\end{figure}
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1b
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item Write a function to use Newton's Method, with the syntax
+\begin{code}
+def myNewton(f, df, x0, TOL, maxit):
+    # Your code goes here
+    return (sol, its, hist)
+\end{code}
+
+where
+\begin{itemize}
+\item \verb|sol|:   $M \times 1$ array, the final value of the independent variable $x$.
+\item \verb|its|:   scalar, the number of iterations performed.
+\item \verb|hist|:  $M \times(\verb|its|+1)$ array, where $\verb|hist(:, i + 1)| = x_{i}$.
+\item \verb|f|:     function with input size $M \times 1$ and output size $M \times 1$, gradient of $\Pi$.
+\item \verb|df|:    function with input size $M \times 1$ and output size $M \times M$, Hessian of $\Pi$.
+\item \verb|x0|:    $M \times 1$ array, initial guess to start iterations.
+\item \verb|TOL|:   scalar, maximum allowable distance of \verb|f(sol)| from 0.
+\item \verb|maxit|: scalar, maximum allowable iterations.
+\end{itemize}
+
+$M$ (the dimension of function input $x$) equals 1 in this problem.
+
+\begin{answer}
+Newton's method was implemented with the required function signature and returns the final iterate \texttt{sol}, the iteration count \texttt{its}, and the full history array \texttt{hist}. The full implementation is provided in the code listing below.
+\end{answer}
+
+\begin{code}[python][Newton's Method Implementation (myNewton)]
+from __future__ import annotations
+import numpy as np
+
+def _as_col(x) -> np.ndarray:
+    x_arr = np.asarray(x, dtype=float)
+    if x_arr.ndim == 0:
+        return x_arr.reshape(1, 1)
+    if x_arr.ndim == 1:
+        return x_arr.reshape(-1, 1)
+    if x_arr.ndim == 2 and x_arr.shape[1] == 1:
+        return x_arr
+    raise ValueError(f"x0 must be scalar, (M,), or (M,1). Got {x_arr.shape}.")
+
+def myNewton(f, df, x0, TOL, maxit):
+    if maxit < 0:
+        raise ValueError("maxit must be nonnegative.")
+    if TOL <= 0:
+        raise ValueError("TOL must be positive.")
+
+    x = _as_col(x0)
+    M = x.shape[0]
+
+    hist = np.zeros((M, maxit + 1), dtype=float)
+    hist[:, 0] = x.ravel()
+
+    for k in range(maxit):
+        fx = np.asarray(f(x), dtype=float).reshape(M, 1)
+
+        # Stop when distance of f(x) from 0 is small enough
+        if np.linalg.norm(fx, ord=2) <= TOL:
+            its = k
+            return (x, its, hist[:, :its + 1])
+
+        J = np.asarray(df(x), dtype=float)
+        if J.shape != (M, M):
+            raise ValueError(f"df(x) must return shape ({M},{M}); got {J.shape}.")
+
+        # Newton step: J * delta = f(x), x_{k+1} = x_k - delta
+        delta = np.linalg.solve(J, fx)
+        x = x - delta
+        hist[:, k + 1] = x.ravel()
+
+    its = maxit
+    return (x, its, hist[:, :its + 1])
+\end{code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1c
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item Provide your code for $f$ and $df$ corresponding to $\Pi_{a}$ and $\Pi_{b}$. Make two plots: 1.) Plot $d\Pi_{a}/dx$ and $d\Pi_{b}/dx$ (plotting functions $f$) on the domain $-20 \leq x \leq 20$. 2.) Plot $d^2\Pi_{a}/dx^2$ and $d^2\Pi_{b}/dx^2$ (plotting functions $df$) on the domain $-20 \leq x \leq 20$.
+
+\begin{answer}
+The gradients and Hessians were derived analytically and implemented directly. For $\Pi_a(x)=x^2$, $d\Pi_a/dx=2x$ and $d^2\Pi_a/dx^2=2$. For $\Pi_b(x)=\left(x+\frac{\pi}{2}\sin x\right)^2$, the gradient oscillates and crosses zero many times, and the Hessian varies in sign and magnitude across the domain, which explains why Newton's method becomes initial-condition sensitive. The full implementations are provided in the code listing below.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{gradients.png}
+\caption{Gradients $d\Pi_a/dx$ and $d\Pi_b/dx$ on $[-20,20]$.}
+\label{fig:grads}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.65\textwidth]{hessians.png}
+\caption{Hessians $d^2\Pi_a/dx^2$ and $d^2\Pi_b/dx^2$ on $[-20,20]$.}
+\label{fig:hess}
+\end{figure}
+\end{answer}
+
+\begin{code}[python][Objective Functions, Gradients, and Hessians]
+import numpy as np
+
+def Pi_a(x):
+    x = np.asarray(x, dtype=float)
+    return x**2
+
+def Pi_b(x):
+    x = np.asarray(x, dtype=float)
+    return (x + (np.pi/2.0)*np.sin(x))**2
+
+def grad_Pi_a(x):
+    x = np.asarray(x, dtype=float)
+    return 2.0*x
+
+def grad_Pi_b(x):
+    x = np.asarray(x, dtype=float)
+    g  = x + (np.pi/2.0)*np.sin(x)
+    gp = 1.0 + (np.pi/2.0)*np.cos(x)
+    return 2.0*g*gp
+
+def hess_Pi_a(x):
+    return np.array([[2.0]], dtype=float)
+
+def hess_Pi_b(x):
+    x = float(np.asarray(x, dtype=float))
+    g  = x + (np.pi/2.0)*np.sin(x)
+    gp = 1.0 + (np.pi/2.0)*np.cos(x)
+    gpp = -(np.pi/2.0)*np.sin(x)
+    d2 = 2.0*((gp**2) + g*gpp)
+    return np.array([[d2]], dtype=float)
+\end{code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1d
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item Use \verb|myNewton()| to minimize $\Pi_{a}$ and $\Pi_{b}$, with \verb|x0| = $2 \times 10^{k}$, for $k\in\{ -1, 0, 1 \}$. Use \verb|TOL| = $10^{-8}$ and \verb|maxit| = 20. Plot $\Pi(\verb|hist|)$ for $\Pi_{a}$ and $\Pi_{b}$. Explain any significant results.
+
+\begin{answer}
+Newton's method was run with $x_0 \in \{0.2, 2, 20\}$, \texttt{TOL}$=10^{-8}$, and \texttt{maxit}$=20$.
+
+\textbf{Key result:} For $\Pi_a(x)=x^2$, Newton converges to $x=0$ in one iteration for all initial guesses (quadratic objectives are solved exactly in one Newton step). For $\Pi_b(x)$, Newton converges to different stationary points depending on $x_0$, demonstrating that Newton's method is a local method and is not guaranteed to find the global minimum for non-convex functions.
+
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+Objective & $x_0$ & Converged $x^\star$ & Iterations \\
+\midrule
+$\Pi_a$ & 0.2 & 0 & 1 \\
+$\Pi_a$ & 2   & 0 & 1 \\
+$\Pi_a$ & 20  & 0 & 1 \\
+\midrule
+$\Pi_b$ & 0.2 & $\approx 0$ & 3 \\
+$\Pi_b$ & 2   & $\approx 2.2609$ & 4 \\
+$\Pi_b$ & 20  & $\approx 21.1105$ & 5 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{newton_Pia_convergence.png}
+\caption{Newton convergence for $\Pi_a(\texttt{hist})$ (semilog scale). The ``vertical'' drop occurs because Newton solves a quadratic in one step.}
+\label{fig:newton_a}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{newton_Pib_convergence.png}
+\caption{Newton convergence for $\Pi_b(\texttt{hist})$ (semilog scale). Convergence is strongly dependent on $x_0$ and can terminate at different stationary points.}
+\label{fig:newton_b}
+\end{figure}
+\end{answer}
+
+\end{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item {\bf Genetic Algorithm.} The genetic algorithm (GA) implemented here follows the course reader's STEP 1--STEP 6 procedure, including nearest-ranked mating and the component-wise $\phi/\psi$ offspring construction (two children per nearest-neighbor pair).
+
+\begin{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2a
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item Write a genetic algorithm in terms of the general parameters and debug your code on $\Pi_a$ and $\Pi_b$ using $S = 50$, $P = 12$, $K = 12$, $\texttt{lim} = [-20, 20]$, $dv = 1$, $\texttt{TOL} = 10^{-6}$, nearest-neighbor breeding, no mutations, and $G = 100$ generations. Provide your code below.
+
+\begin{answer}
+This implementation uses: (i) elitism (preserve the top $P$ strings), (ii) nearest-ranked mating, and (iii) the reader's component-wise $\phi/\psi$ crossover to generate offspring. For each nearest-ranked pair, two offspring are generated:
+\[
+\lambda^{(child1)} = \Phi \circ \lambda^{(i)} + (1-\Phi)\circ \lambda^{(i+1)}, \quad
+\lambda^{(child2)} = \Psi \circ \lambda^{(i)} + (1-\Psi)\circ \lambda^{(i+1)}
+\]
+where $\Phi$ and $\Psi$ are vectors with independent components in $[0,1]$ and $\circ$ denotes component-wise multiplication. The remaining population slots are filled with newly generated random strings (reader STEP 6). Mutation is disabled for the debugging configuration.
+
+The full implementation is provided in the code listing below.
+\end{answer}
+
+\begin{code}[python][Genetic Algorithm (phi/psi) Implementation]
+from __future__ import annotations
+import numpy as np
+
+def genetic_algorithm_phi_psi(cost_fn, S, P, K, TOL, G, dv, lim, seed=None):
+    rng = np.random.default_rng(seed)
+    lim = np.asarray(lim, dtype=float).reshape(dv, 2)
+    lo = lim[:, 0]
+    hi = lim[:, 1]
+
+    def sample_uniform(n):
+        u = rng.random((n, dv))
+        return lo + (hi - lo) * u
+
+    # STEP 1: initial population
+    Lambda = sample_uniform(S)
+
+    Pi      = np.zeros((G, S), dtype=float)   # ranked costs per generation
+    Pi_min  = np.zeros(G, dtype=float)        # best cost per generation
+    Pi_avg  = np.zeros(G, dtype=float)        # mean cost per generation
+
+    if P < 2 and K > 0:
+        raise ValueError("Need P>=2 for nearest-neighbor mating.")
+
+    # number of nearest-neighbor pairs needed to generate K offspring (2 children per pair)
+    num_pairs = (K + 1) // 2 if K > 0 else 0
+
+    for g in range(G):
+        # STEP 2: compute fitness
+        costs = np.asarray(cost_fn(Lambda), dtype=float).ravel()
+
+        # STEP 3: rank (ascending = best first)
+        order = np.argsort(costs)
+        ranked_costs = costs[order]
+
+        Pi[g, :] = ranked_costs
+        Pi_min[g] = ranked_costs[0]
+        Pi_avg[g] = ranked_costs.mean()
+
+        # stop if tolerance achieved
+        if Pi_min[g] <= TOL:
+            return Pi[:g+1, :], Pi_min[:g+1], Pi_avg[:g+1], Lambda
+
+        # STEP 5: keep top P parents
+        elites = Lambda[order[:P], :]
+
+        # STEP 4: mate nearest ranked pairs and produce offspring using component-wise Phi/Psi
+        offspring_list = []
+        for t in range(num_pairs):
+            i = t % (P - 1)
+            j = i + 1
+            pa = elites[i, :]
+            pb = elites[j, :]
+
+            Phi = rng.random(dv)   # components in [0,1]
+            Psi = rng.random(dv)   # components in [0,1]
+
+            child1 = Phi * pa + (1.0 - Phi) * pb
+            child2 = Psi * pa + (1.0 - Psi) * pb
+
+            offspring_list.append(child1)
+            if len(offspring_list) < K:
+                offspring_list.append(child2)
+            if len(offspring_list) >= K:
+                break
+
+        offspring = np.array(offspring_list, dtype=float).reshape(-1, dv) if K > 0 else np.zeros((0, dv))
+
+        # STEP 6: add new random strings to maintain population size S
+        R = S - (P + offspring.shape[0])
+        newcomers = sample_uniform(R) if R > 0 else np.zeros((0, dv))
+
+        Lambda = np.vstack([elites, offspring, newcomers])
+
+    return Pi, Pi_min, Pi_avg, Lambda
+\end{code}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2b
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item Attempt to minimize $\Pi_b$ from problem 1 using your GA to a tolerance of $\Pi_b(x) \le \texttt{TOL} = 10^{-6}$. Use the same GA parameters as outlined in part (a). Plot the cost of the best design and the mean cost of all of the design strings for each generation on a log-log or semilog plot. Based on this plot, what observations can you make about the diversity of genetic fitness from one generation to the next and across the entire simulation?
+
+\begin{answer}
+Using the required debugging parameters $(S = 50, P = 12, K = 12, dv = 1, \text{lim} = [-20,20], \text{TOL} = 10^{-6}, G = 100)$, the $\phi/\psi$ genetic algorithm achieved the tolerance for $\Pi_b$ near the end of the allowed generations (final best cost $\approx 10^{-8}$). The plot below shows the best and mean costs per generation on a semilog axis.
+
+
+\textbf{Fitness diversity observation:}  
+The best cost exhibits long plateaus followed by occasional sharp drops. This indicates that improvements occur when a favorable design is discovered either through recombination or via the injection of random newcomers. Because mating is performed only between fixed nearest-neighbor elite pairs $(0,1), (2,3), \dots$, each high-quality design influences only a small number of offspring per generation. As a result, exploitation is weaker than in schemes where top individuals are reused more aggressively, and convergence is slower.
+
+Meanwhile, the mean cost remains relatively large throughout the simulation. This is expected because the algorithm replaces a significant fraction of the population with uniformly sampled random strings every generation. These newcomers maintain global exploration and prevent the population from collapsing tightly around the elite basin, even while the best individual improves by several orders of magnitude.
+
+Overall, the plot demonstrates a persistent tension between \textbf{exploration} (maintained by random replenishment) and \textbf{exploitation} (driven by elitism and convex-combination crossover). The diversity of the population remains high, which improves robustness but increases the time required to reach a very small tolerance.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{ga_phi_psi_Pib_best_mean.png}
+\caption{GA ($\phi/\psi$) on $\Pi_b$: best and mean cost per generation (semilog scale), with $S=50$, $P=12$, $K=12$, $dv=1$, $\texttt{lim}=[-20,20]$, $\texttt{TOL}=10^{-6}$, $G=100$, nearest-neighbor mating, and no mutation.}
+\label{fig:ga_phi_psi_pib}
+\end{figure}
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2c
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item What would the case with zero parents represent (genetic information does not make it to the new generation)? How would it perform? Conduct a trial or theorize about its run time and reliability.
+
+\begin{answer}
+The case with zero parents corresponds to \textbf{no inheritance}: none of the current generation's information is preserved, so each generation is effectively a fresh random sample from the design space (pure random search / Monte Carlo sampling). In that case, there is no cumulative learning across generations; the ``best so far'' would improve only by chance as more samples are drawn.
+
+\textbf{Run time:} Each generation still requires $S$ objective evaluations, so the computational cost per generation is similar. However, convergence to very small tolerances becomes much less reliable because there is no exploitation of good regions found previously.
+
+\textbf{Reliability:} For simple convex objectives, pure random search can eventually find near-optimal points but typically needs far more samples than a GA with elitism and crossover. For nonconvex objectives, it may still occasionally find good basins, but performance is highly variable and not robust compared to preserving and recombining the best designs.
+\end{answer}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2d
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\item Research question: Discuss the advantages and disadvantages of using Newton's method and a genetic algorithm for global optimization of complicated functions. When is each method useful? Think particularly about run time, reliability and the limitations on the conditions a function must satisfy for each method to work.
+
+\begin{answer}
+\textbf{Newton's method:} When the objective is smooth and locally well-approximated by a convex quadratic (e.g., near a well-behaved minimum), Newton's method converges very rapidly (often in a few iterations) and is computationally efficient in terms of iterations. However, it requires derivative information (gradient and Hessian) and can be sensitive to the initial guess. For nonconvex or nonsmooth objectives, Newton can converge to non-optimal stationary points or fail if the Hessian is indefinite or near-singular.
+
+\textbf{Genetic algorithm ($\phi/\psi$):} A GA does not require gradients or Hessians and is robust to nonconvexity and nonsmoothness. The reader's $\phi/\psi$ offspring construction produces physically meaningful intermediate parameter sets (convex combinations) and, combined with nearest-neighbor mating and elitism, can efficiently refine a good region of the search space while random replenishment maintains exploration. The tradeoff is run time: GAs generally require many objective evaluations and convergence can depend on population size and selection pressure. In practice, the GA is useful for global search and identifying a good basin, while Newton (or other local methods) is useful for rapid local refinement once a good candidate is found.
+\end{answer}
+
+\end{enumerate}
+\end{enumerate}
+
+\end{document}

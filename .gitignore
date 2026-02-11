@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Project outputs
+projects/*/output/
+projects/projectx/run_output.log
+
+# Notebook artifacts
+.ipynb_checkpoints/
