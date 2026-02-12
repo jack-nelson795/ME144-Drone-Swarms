@@ -1,6 +1,6 @@
 ME144 / ME244 Project Workspace
 ===============================
-![swarm_control_emergent](https://github.com/user-attachments/assets/bf6f00ca-2b65-4533-8bfe-4f5a4942547d)
+![swarm_control_emergent](https://github.com/user-attachments/assets/5ee9c3a4-f9eb-488b-b76a-6ed90f97a8a5)
 
 This repository contains Project 1 (optimization methods) and Project X (3D emergent swarm control). Project X is a sandbox for Project 3 ideas; Project 1 is complete and polished.
 
@@ -35,6 +35,20 @@ Project X (sandbox)
 Run the 3D emergent control pipeline:
 
 	python projects\projectx\run_projectx_3d_animation.py
+
+Implementation notes:
+- The entry script is intentionally thin; most logic lives in:
+	projects/projectx/projectx_anim/
+	(config, environment generation, global state init, simulator, GA cost, pipeline, visualization)
+
+Speed/debug options (environment variables):
+- Fast smoke run:
+	set PROJECTX_FAST=1
+	python projects\projectx\run_projectx_3d_animation.py
+- Skip plots/GIF (useful on slow machines):
+	set PROJECTX_SKIP_VIZ=1
+- Downsample animation frames (e.g., every 5th step):
+	set PROJECTX_ANIM_STRIDE=5
 
 Outputs are saved under:
 	projects/projectx/output/figures/
