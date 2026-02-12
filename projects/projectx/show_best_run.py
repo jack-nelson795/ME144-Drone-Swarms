@@ -29,57 +29,103 @@ def generate_random_targets_and_obstacles(
 ) -> tuple:
     """Generate random non-intersecting target and obstacle positions."""
     np.random.seed(seed)
-    
+
     targets = []
     obstacles = []
-    all_positions = []
-    
-    # Generate targets
-    for _ in range(n_targets):
-        for attempt in range(100):
-            pos = np.array([
-                np.random.uniform(15, 85),
-                np.random.uniform(10, 90),
-                0.0
-            ])
-            
-            valid = True
-            for existing_pos in all_positions:
-                dist = np.linalg.norm(pos[:2] - existing_pos[:2])
-                if dist < min_distance:
-                    valid = False
-                    break
-            
-            if valid:
-                targets.append(pos)
-                all_positions.append(pos)
+    placed = []  # list of (pos, kind)
+    obstacle_min_distance = min_distance * 0.5
+    target_obstacle_min_distance = min_distance * 0.5
+
+    def _build_spawn_order(n_t: int, n_o: int) -> list[str]:
+        total = n_t + n_o
+        weights = {'target': int(n_t), 'obstacle': int(n_o)}
+        remaining = weights.copy()
+        current = {'target': 0, 'obstacle': 0}
+        order = []
+        last_kind = None
+        run_len = 0
+        max_run = 2
+
+        for _ in range(total):
+            for k in current:
+                current[k] += weights[k]
+
+            candidates = [k for k in ('target', 'obstacle') if remaining[k] > 0]
+            if not candidates:
                 break
-    
-    # Generate obstacles
-    for _ in range(n_obstacles):
-        for attempt in range(100):
-            pos = np.array([
-                np.random.uniform(10, 90),
-                np.random.uniform(10, 90),
-                0.0
-            ])
-            
+
+            candidates_sorted = sorted(
+                candidates,
+                key=lambda k: (current[k], np.random.random()),
+                reverse=True,
+            )
+
+            pick = None
+            for k in candidates_sorted:
+                if last_kind == k and run_len >= max_run:
+                    other = 'obstacle' if k == 'target' else 'target'
+                    if remaining.get(other, 0) > 0:
+                        continue
+                pick = k
+                break
+            if pick is None:
+                pick = candidates_sorted[0]
+
+            order.append(pick)
+            remaining[pick] -= 1
+            current[pick] -= total
+
+            if pick == last_kind:
+                run_len += 1
+            else:
+                last_kind = pick
+                run_len = 1
+
+        return order
+
+    for kind in _build_spawn_order(n_targets, n_obstacles):
+        max_attempts = 200 + 10 * len(placed)
+        for _ in range(max_attempts):
+            if kind == 'target':
+                pos = np.array([
+                    np.random.uniform(15, 85),
+                    np.random.uniform(10, 90),
+                    0.0
+                ])
+            else:
+                pos = np.array([
+                    np.random.uniform(10, 90),
+                    np.random.uniform(10, 90),
+                    0.0
+                ])
+
             valid = True
-            for existing_pos in all_positions:
+            for existing_pos, existing_kind in placed:
                 dist = np.linalg.norm(pos[:2] - existing_pos[:2])
-                if dist < min_distance:
+                if kind == existing_kind == 'target':
+                    required = min_distance
+                elif kind == existing_kind == 'obstacle':
+                    required = obstacle_min_distance
+                else:
+                    required = target_obstacle_min_distance
+                if dist < required:
                     valid = False
                     break
-            
-            if valid:
+            if not valid:
+                continue
+
+            if kind == 'target':
+                targets.append(pos)
+                placed.append((pos, 'target'))
+            else:
                 obstacles.append({
                     'center': pos,
                     'size': 3.0,
                     'radius': 1.5,
                     'destroyed': False
                 })
-                all_positions.append(pos)
-                break
+                placed.append((pos, 'obstacle'))
+            break
     
     return targets, obstacles
 
