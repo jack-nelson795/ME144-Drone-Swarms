@@ -45,6 +45,13 @@ def main(*, fast: bool = False, create_viz: bool = True) -> None:
     if fast:
         print(f"  [FAST] Overriding GA params: S={S}, P={P}, K={K}, G={G}")
 
+    # Keep state GA hyperparameters consistent with this run.
+    # The hybrid evaluator in cost.py uses state.P to ensure elites are always evaluated.
+    state.S = S
+    state.P = P
+    state.K = K
+    state.G = G
+
     Pi, Pi_min, Pi_avg, Lambda = genetic_algorithm(
         swarm_control_cost,  # Multiprocessing cost evaluation
         S=S,

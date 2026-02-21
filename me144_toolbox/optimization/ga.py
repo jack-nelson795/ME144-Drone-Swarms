@@ -204,10 +204,12 @@ def genetic_algorithm(
         R = S - (P + K)
         newcomers = _sample_uniform(rng, R, lim) if R > 0 else np.zeros((0, dv), dtype=float)
 
+        # Optional mutation (disabled for Project 1 debugging)
+        # IMPORTANT: do not mutate elites; elitism means the top P designs are preserved.
+        offspring = _mutate_gaussian(rng, offspring, lim, mutation_rate, sigma_frac)
+        newcomers = _mutate_gaussian(rng, newcomers, lim, mutation_rate, sigma_frac)
+
         # Next generation (unsorted)
         Lambda = np.vstack([elites, offspring, newcomers])
-
-        # Optional mutation (disabled for Project 1 debugging)
-        Lambda = _mutate_gaussian(rng, Lambda, lim, mutation_rate, sigma_frac)
 
     return Pi_hist, Pi_min, Pi_avg, Lambda

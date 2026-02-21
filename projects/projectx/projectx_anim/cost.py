@@ -233,10 +233,21 @@ def swarm_control_cost(control_weights: np.ndarray, run_simulation: bool = False
     if run_simulation:
         eval_mask = np.ones(pop_size, dtype=bool)
     else:
-        # Simulate top fraction by heuristic every generation (consistent evaluation policy)
+        # Hybrid policy:
+        #   1) Always simulate the GA "elite block" (first P individuals). In our GA
+        #      implementation, the next generation is stacked as [elites, offspring, newcomers],
+        #      so indices 0..P-1 correspond to elites and must be evaluated consistently to
+        #      preserve the expected stair-step best-cost curve.
+        #   2) Additionally simulate a top fraction by heuristic to explore promising newcomers.
+        elite_count = int(max(0, min(getattr(state, 'P', 0), pop_size)))
+        elite_idx = np.arange(elite_count, dtype=int)
+
         k = max(1, int(pop_size * SIM_FRACTION))
         best_idx = np.argsort(heuristics)[:k]
+
         eval_mask = np.zeros(pop_size, dtype=bool)
+        if elite_count > 0:
+            eval_mask[elite_idx] = True
         eval_mask[best_idx] = True
 
     # Prepare work packages for parallel evaluation
@@ -282,10 +293,37 @@ def swarm_control_cost(control_weights: np.ndarray, run_simulation: bool = False
 
     print(f"  [GA] Evaluation complete", flush=True)
 
-    # Fill final cost array: simulated candidates use sim results, others use penalized heuristic
-    costs = heuristics.copy() + HEURISTIC_PENALTY
+    # Fill final cost array.
+    # Key rule for hybrid evaluation:
+    #   - Simulated candidates get their simulation-derived costs.
+    #   - Non-simulated candidates must NEVER beat simulated ones, otherwise the GA will
+    #     converge to the heuristic+offset floor and the "best cost" curve becomes flat.
+    costs = np.full(pop_size, np.inf, dtype=float)
+
+    # Write simulated results
     for idx, work in enumerate(work_packages):
-        s = work[0]
-        costs[s] = costs_list[idx]
+        s = int(work[0])
+        costs[s] = float(costs_list[idx])
+
+    if run_simulation:
+        # All candidates evaluated; return directly.
+        return costs.reshape(-1, 1)
+
+    # For non-simulated candidates, assign a value worse than the worst simulated one,
+    # with a small heuristic-based spread to keep some ranking signal.
+    if np.any(np.isfinite(costs)):
+        baseline = float(np.max(costs[np.isfinite(costs)]))
+    else:
+        # Fallback if something went wrong: keep costs large.
+        baseline = float(np.max(heuristics)) + HEURISTIC_PENALTY
+
+    h = heuristics.astype(float)
+    h_min = float(np.min(h))
+    h_ptp = float(np.ptp(h))
+    h_norm = (h - h_min) / (h_ptp + 1e-12)  # in [0,1]
+
+    not_eval = ~eval_mask
+    # Always worse than any simulated candidate by at least HEURISTIC_PENALTY.
+    costs[not_eval] = baseline + HEURISTIC_PENALTY * (1.0 + h_norm[not_eval])
 
     return costs.reshape(-1, 1)
