@@ -1,0 +1,593 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath, amssymb, bm}
+\usepackage[margin=1in]{geometry}
+\usepackage{physics}
+
+\title{ME144 Project 2 \\ Foundational Models -- Dynamics \\ (Referenced to Zohdi v22)}
+\author{Jack Nelson}
+\date{}
+
+\begin{document}
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 1: Single Particle Dynamics (Zohdi Sec. 2.1.2)}
+
+\subsection*{1(a) Derive $a = v\,\dv{v}{x}$ using chain rule}
+
+Start from the definitions (Zohdi Eq. (2.1)--(2.2)):
+\[
+v(t) = \dv{x}{t}, \qquad a(t) = \dv{v}{t}.
+\]
+
+Apply chain rule to $v=v(x(t))$:
+\[
+\dv{v}{t} = \dv{v}{x}\dv{x}{t}.
+\]
+
+Substitute $\dv{x}{t}=v$:
+\[
+a = \dv{v}{t} = \dv{v}{x}\,v.
+\]
+
+Therefore,
+\[
+\boxed{a = v\,\dv{v}{x}} \qquad \text{(matches Zohdi Eq. (2.6)/(2.8)).}
+\]
+
+\subsection*{1(b) With $x(0)=0$, $v(0)=0$: derive $x(t)$ under four acceleration forms}
+
+\subsubsection*{(i) Constant acceleration $a=a_0$}
+
+Start from definition:
+\[
+\dv{v}{t} = a_0.
+\]
+Separate and integrate from $t=0$ to $t$:
+\[
+\int_{v(0)}^{v(t)} dv = \int_0^{t} a_0\,dt.
+\]
+Using $v(0)=0$:
+\[
+v(t) - 0 = a_0 t \quad \Rightarrow \quad \boxed{v(t)=a_0 t}.
+\]
+
+Now use $v=\dv{x}{t}$:
+\[
+\dv{x}{t} = a_0 t.
+\]
+Integrate from $0$ to $t$:
+\[
+\int_{x(0)}^{x(t)} dx = \int_0^{t} a_0 s\,ds.
+\]
+Using $x(0)=0$:
+\[
+x(t) = a_0\left[\frac{s^2}{2}\right]_{0}^{t}
+      = \frac12 a_0 t^2.
+\]
+So,
+\[
+\boxed{x(t)=\frac12 a_0 t^2} \qquad \text{(matches Zohdi Eq. (2.5) with $v_0=x_0=t_0=0$).}
+\]
+
+\newpage
+\subsubsection*{(ii) Acceleration as a function of time $a=f(t)$}
+
+Start:
+\[
+\dv{v}{t} = f(t).
+\]
+Integrate from $0$ to $t$:
+\[
+\int_{v(0)}^{v(t)} dv = \int_0^{t} f(\tau)\,d\tau.
+\]
+Using $v(0)=0$:
+\[
+\boxed{v(t) = \int_0^{t} f(\tau)\,d\tau}
+\qquad \text{(Zohdi Eq. (2.10) with $v_0=t_0=0$).}
+\]
+
+Then,
+\[
+x(t)=\int_0^{t} v(s)\,ds
+     =\int_0^{t}\left[\int_0^{s} f(\tau)\,d\tau\right]ds,
+\]
+so
+\[
+\boxed{x(t)=\int_0^{t}\left(\int_0^{s} f(\tau)\,d\tau\right)ds}
+\qquad \text{(Zohdi Eq. (2.11) with $x_0=v_0=t_0=0$).}
+\]
+
+\newpage
+\subsubsection*{(iii) Acceleration as a function of position $a=a(x)$}
+
+Use the chain rule identity from part (a) (Zohdi Eq. (2.9)/(2.12)):
+\[
+a = v\dv{v}{x}.
+\]
+Rewrite:
+\[
+v\,dv = a(x)\,dx.
+\]
+Integrate from $(x,v)=(0,0)$ to $(x,v)=(x,v)$:
+\[
+\int_{0}^{v} v'\,dv' = \int_{0}^{x} a(\xi)\,d\xi.
+\]
+Compute the left integral:
+\[
+\left[\frac12 (v')^2\right]_{0}^{v} = \int_{0}^{x} a(\xi)\,d\xi
+\quad\Rightarrow\quad
+\frac12 v^2 = \int_{0}^{x} a(\xi)\,d\xi.
+\]
+Thus,
+\[
+v(x)=\sqrt{2\int_{0}^{x} a(\xi)\,d\xi}.
+\]
+Since $v=\dv{x}{t}$:
+\[
+\dv{x}{t}=\sqrt{2\int_{0}^{x} a(\xi)\,d\xi}
+\quad\Rightarrow\quad
+dt=\frac{dx}{\sqrt{2\int_{0}^{x} a(\xi)\,d\xi}}.
+\]
+Integrate from $0$ to $t$, and $0$ to $x(t)$:
+\[
+\boxed{
+t=\int_{0}^{x(t)}\frac{d\eta}{\sqrt{2\int_{0}^{\eta} a(\xi)\,d\xi}}
+}
+\qquad \text{(matches Zohdi Eq. (2.12) logic, rearranged).}
+\]
+
+\newpage
+\subsubsection*{(iv) Acceleration as a function of velocity $a=a(v)$}
+
+Start:
+\[
+\dv{v}{t} = a(v).
+\]
+Separate:
+\[
+dt = \frac{dv}{a(v)}.
+\]
+Integrate from $0$ to $t$ and $0$ to $v(t)$:
+\[
+\boxed{
+t=\int_{0}^{v(t)}\frac{d\mu}{a(\mu)}
+}
+\qquad \text{(Zohdi Sec. 2.1.2 item 4).}
+\]
+
+Also, use $v=\dv{x}{t}$ and substitute $dt$:
+\[
+dx = v\,dt = v\,\frac{dv}{a(v)}.
+\]
+Integrate:
+\[
+\boxed{
+x(v)=\int_{0}^{v}\frac{\nu}{a(\nu)}\,d\nu
+}
+\qquad \text{(Zohdi Sec. 2.1.2 item 4).}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 2: Multidimensional Analysis (Zohdi Sec. 2.1.4 and Polar Eqns)}
+
+\subsection*{2(a) Why do $\dot{\bm i}, \dot{\bm j}, \dot{\bm k}$ vanish in Cartesian coordinates?}
+
+In a Cartesian frame, the basis vectors $\bm i,\bm j,\bm k$ are \emph{fixed in space} (they do not rotate with the motion),
+so their time derivatives are zero:
+\[
+\boxed{\dot{\bm i}=\dot{\bm j}=\dot{\bm k}=0.}
+\]
+
+\subsection*{2(b) Normal--Tangential acceleration form}
+
+In the moving tangent-normal basis,
+\[
+\boxed{\bm a = \dot v\,\bm e_t + \frac{v^2}{\rho}\,\bm e_n.}
+\]
+Here:
+\begin{itemize}
+\item $v=\abs{\bm v}$ is the speed,
+\item $\dot v$ is the tangential acceleration magnitude,
+\item $\rho$ is the local radius of curvature of the path,
+\item $\bm e_t$ is the unit tangent direction of motion,
+\item $\bm e_n$ is the inward unit normal direction (toward curvature center).
+\end{itemize}
+
+\newpage
+\subsection*{2(c) Starting from Eq. (2.51), derive $\bm a$ in polar basis (use Eqns. (2.48), (2.50))}
+
+From Zohdi Eq. (2.44), position is:
+\[
+\bm r = r\,\bm e_r.
+\]
+Velocity definition:
+\[
+\bm v = \dot{\bm r} = \frac{d}{dt}(r\bm e_r)
+     = \dot r\,\bm e_r + r\,\dot{\bm e_r}.
+\]
+Use Zohdi Eq. (2.48):
+\[
+\dot{\bm e_r} = \dot\theta\,\bm e_\theta.
+\]
+Substitute:
+\[
+\bm v = \dot r\,\bm e_r + r\dot\theta\,\bm e_\theta,
+\]
+which is exactly Zohdi Eq. (2.51).
+
+Now differentiate velocity to get acceleration:
+\[
+\bm a = \dot{\bm v}
+= \frac{d}{dt}\Big(\dot r\,\bm e_r + r\dot\theta\,\bm e_\theta\Big).
+\]
+Apply product rule term-by-term:
+\[
+\bm a
+= \frac{d}{dt}(\dot r\,\bm e_r) + \frac{d}{dt}(r\dot\theta\,\bm e_\theta)
+= \ddot r\,\bm e_r + \dot r\,\dot{\bm e_r}
+  + (\dot r\dot\theta + r\ddot\theta)\bm e_\theta + r\dot\theta\,\dot{\bm e_\theta}.
+\]
+Now substitute the polar basis derivatives:
+\[
+\dot{\bm e_r} = \dot\theta\,\bm e_\theta \quad \text{(Eq. 2.48)},\qquad
+\dot{\bm e_\theta} = -\dot\theta\,\bm e_r \quad \text{(Eq. 2.50)}.
+\]
+So:
+\[
+\bm a
+= \ddot r\,\bm e_r + \dot r(\dot\theta\,\bm e_\theta)
+  + (\dot r\dot\theta + r\ddot\theta)\bm e_\theta
+  + r\dot\theta(-\dot\theta\,\bm e_r).
+\]
+Combine like terms in $\bm e_r$ and $\bm e_\theta$:
+\[
+\bm a
+= (\ddot r - r\dot\theta^2)\bm e_r
++ (2\dot r\dot\theta + r\ddot\theta)\bm e_\theta.
+\]
+Therefore,
+\[
+\boxed{\bm a = (\ddot r - r\dot\theta^2)\bm e_r + (r\ddot\theta + 2\dot r\dot\theta)\bm e_\theta}
+\qquad \text{(matches Zohdi Eq. (2.52)).}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 3: Work--Energy Principle (Zohdi Sec. 2.3.5)}
+
+\subsection*{3(a) Conservative force condition + demonstration with book example}
+
+From Zohdi Sec. 2.3.5: if the work differential can be written as an exact differential,
+\[
+\bm F\cdot d\bm r = -dV,
+\]
+then
+\[
+U_{12} = \int_{\bm r_1}^{\bm r_2} \bm F\cdot d\bm r
+       = -\int_{V_1}^{V_2} dV
+       = -(V_2 - V_1).
+\]
+Also, since
+\[
+-dV = -\pdv{V}{x}dx - \pdv{V}{y}dy - \pdv{V}{z}dz,
+\]
+we identify
+\[
+F_x = -\pdv{V}{x},\quad F_y=-\pdv{V}{y},\quad F_z=-\pdv{V}{z}
+\quad\Rightarrow\quad
+\boxed{\bm F = -\nabla V.}
+\]
+Thus the defining conservative-force relationship is:
+\[
+\boxed{\bm F=-\nabla V.}
+\]
+
+\textbf{Demonstration using gravity (book example):}
+For constant gravity, Zohdi lists
+\[
+\bm F = -mg\,\bm k \quad \Longleftrightarrow \quad V = mgz.
+\]
+Compute:
+\[
+\nabla V = \pdv{(mgz)}{x}\bm i + \pdv{(mgz)}{y}\bm j + \pdv{(mgz)}{z}\bm k
+= 0\bm i + 0\bm j + mg\,\bm k,
+\]
+so
+\[
+-\nabla V = -mg\,\bm k = \bm F,
+\]
+which verifies the conservative relationship.
+
+\subsection*{3(b) Meaning of $\int_1^2 \bm F_{\text{other}}\cdot d\bm r$}
+
+\[
+\boxed{
+\int_{1}^{2} \bm F_{\text{other}}\cdot d\bm r
+\text{ represents the work done by nonconservative (``other'') forces along the path from 1 to 2.}
+}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 4: Conservation Conditions (Zohdi Sec. 2.4.1/2)}
+
+\subsection*{4(a) Condition for linear momentum conservation in a given direction}
+
+From Zohdi Sec. 2.4.1, linear momentum of a particle is
+\[
+\bm G = m\bm v,
+\]
+and the momentum form of Newton's 2nd law is (Eq. (2.89)):
+\[
+\sum \bm F_{\text{ext}} = \dot{\bm G}.
+\]
+If the net external force component in some direction ``dir'' is zero, then the corresponding
+component of $\dot{\bm G}$ is zero:
+\[
+\sum F_{\text{ext,dir}} = 0 \;\Rightarrow\; \dot G_{\text{dir}}=0 \;\Rightarrow\; G_{\text{dir}}=\text{constant}.
+\]
+Therefore,
+\[
+\boxed{\text{Linear momentum is conserved in a direction if } \sum F_{\text{ext,dir}}=0.}
+\]
+
+\subsection*{4(b) Condition for angular momentum conservation about a point}
+
+From Zohdi Sec. 2.4.2, angular momentum about a point $P$ is (Eq. (2.96))
+\[
+\bm H_P = \bm r_{P\to A}\times m\bm v,
+\]
+and the angular momentum balance has the form
+\[
+\sum \bm M_{P,\text{ext}} = \dot{\bm H}_P.
+\]
+If the net external moment about $P$ is zero, then
+\[
+\sum \bm M_{P,\text{ext}}=\bm 0 \;\Rightarrow\; \dot{\bm H}_P=\bm 0 \;\Rightarrow\; \bm H_P=\text{constant}.
+\]
+Therefore,
+\[
+\boxed{\text{Angular momentum about }P\text{ is conserved if }\sum \bm M_{P,\text{ext}}=\bm 0.}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 5: Kinetics of a System of Particles (Zohdi Sec. 2.5.1/2)}
+
+\subsection*{5(a) Newton's 2nd law for a system of particles + meaning of terms}
+
+From Zohdi Sec. 2.5.1: summing Newton's 2nd law over all particles and using cancellation of internal forces gives
+\[
+\sum \bm F_{\text{ext}} = \dv{}{t}\left(\sum m_i \bm v_i\right).
+\]
+Define the total linear momentum of the system:
+\[
+\bm P \equiv \sum m_i \bm v_i.
+\]
+Then
+\[
+\sum \bm F_{\text{ext}} = \dot{\bm P}.
+\]
+Using the center-of-mass (center-of-gravity) velocity identity $\bm P=M\bar{\bm v}_{cg}$ and differentiating (with $M$ constant),
+\[
+\dot{\bm P} = M\bar{\bm a}_{cg}.
+\]
+Thus the system form is (component forms are Eqs. (2.107)--(2.109), with the compact form consistent with Eq. (2.109)):
+\[
+\boxed{\sum \bm F_{\text{ext}} = \dot{\bm P} = M\bar{\bm a}_{cg}.}
+\]
+Interpretation:
+\begin{itemize}
+\item $\sum \bm F_{\text{ext}}$: sum of \emph{external} forces acting on the system,
+\item $\bm P=\sum m_i\bm v_i$: total system linear momentum,
+\item $M=\sum m_i$: total mass,
+\item $\bar{\bm a}_{cg}$: acceleration of the center of mass (center of gravity under uniform gravity).
+\end{itemize}
+
+\subsection*{5(b) Is total KE equal to sum of particle KEs?}
+
+Yes by definition:
+\[
+\boxed{T = \sum_{i=1}^{N}\frac12 m_i\,\bm v_i\cdot \bm v_i.}
+\]
+
+\newpage
+\subsection*{5(c) Is total KE equal to KE of the center-of-mass? Explain}
+
+Use Zohdi Eq. (2.111):
+\[
+\bm v_i = \bar{\bm v}_{cg} + \dot{\bm r}_{cg\to i}.
+\]
+Compute total kinetic energy:
+\[
+T = \sum \frac12 m_i \bm v_i\cdot \bm v_i
+  = \sum \frac12 m_i (\bar{\bm v}_{cg} + \dot{\bm r}_{cg\to i})\cdot(\bar{\bm v}_{cg} + \dot{\bm r}_{cg\to i}).
+\]
+Expand the dot product:
+\[
+T
+= \sum \frac12 m_i(\bar{\bm v}_{cg}\cdot\bar{\bm v}_{cg})
++ \sum \frac12 m_i(\dot{\bm r}_{cg\to i}\cdot\dot{\bm r}_{cg\to i})
++ \sum m_i(\bar{\bm v}_{cg}\cdot\dot{\bm r}_{cg\to i}).
+\]
+Rewrite each sum:
+\[
+T
+= \frac12 (\bar{\bm v}_{cg}\cdot\bar{\bm v}_{cg})\sum m_i
++ \frac12 \sum m_i(\dot{\bm r}_{cg\to i}\cdot\dot{\bm r}_{cg\to i})
++ \bar{\bm v}_{cg}\cdot\sum m_i\dot{\bm r}_{cg\to i}.
+\]
+Use $\sum m_i = M$ and Zohdi’s fact that $\sum m_i \bm r_{cg\to i}=\bm 0$ implies $\sum m_i\dot{\bm r}_{cg\to i}=\bm 0$,
+so the cross term vanishes. Therefore (Zohdi Eq. (2.113)):
+\[
+\boxed{
+T = \frac12 M\bar{\bm v}_{cg}\cdot\bar{\bm v}_{cg}
+  + \frac12 \sum m_i(\dot{\bm r}_{cg\to i}\cdot\dot{\bm r}_{cg\to i})
+}
+\]
+The second term is generally nonzero, so in general
+\[
+\boxed{
+T \neq \frac12 M\bar v_{cg}^2
+}
+\]
+unless the particles have no relative motion about the center of mass.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 6: Impulse and Momentum of a Particle System (Zohdi Sec. 2.5.3/4 style)}
+
+\subsection*{6(a) Is COM momentum equal to sum of particle momenta?}
+
+Start with the center-of-mass definition (Zohdi Eq. (2.103)):
+\[
+\bm r_{cg} = \frac{1}{M}\sum m_i \bm r_i.
+\]
+Differentiate:
+\[
+\bar{\bm v}_{cg} = \dot{\bm r}_{cg} = \frac{1}{M}\sum m_i \bm v_i
+\quad\Rightarrow\quad
+M\bar{\bm v}_{cg} = \sum m_i \bm v_i.
+\]
+But the total system momentum is (by definition, Sec. 2.5.3)
+\[
+\bm P \equiv \sum m_i \bm v_i.
+\]
+Therefore,
+\[
+\boxed{\bm P = \sum m_i\bm v_i = M\bar{\bm v}_{cg}.}
+\]
+
+\subsection*{6(b) Simple expression for conservation of angular momentum of a particle system}
+
+If net external moment about point $P$ is zero:
+\[
+\sum \bm M_{P,\text{ext}} = \bm 0 \quad \Rightarrow \quad \dv{\bm H_P}{t}=\bm 0,
+\]
+so
+\[
+\boxed{\bm H_P = \text{constant}.}
+\]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section*{Problem 7: Rigid Body Dynamics (Zohdi Sec. 2.6.3 and 2.7.2/3)}
+
+\subsection*{7(a) Using Fig. 2.26 and Eq. 2.152: why is normal velocity $v_n=0$ in pure rotation?}
+
+In pure rotation about a fixed axis (Fig. 2.26), the velocity of a point $A$ is given by the rigid-body relation
+\[
+\bm v_A = \bm\omega \times \bm r_{O\to A}
+\quad \text{(Eq. 2.152 per project hint).}
+\]
+Take the dot product with the radius vector $\bm r_{O\to A}$:
+\[
+\bm v_A\cdot \bm r_{O\to A}
+= (\bm\omega\times \bm r_{O\to A})\cdot \bm r_{O\to A}.
+\]
+But for any vectors, $(\bm a\times \bm b)$ is perpendicular to $\bm b$, so
+\[
+(\bm\omega\times \bm r_{O\to A})\cdot \bm r_{O\to A}=0.
+\]
+Therefore the velocity has no component along the radial/normal direction (the direction of $\bm r_{O\to A}$):
+\[
+\boxed{v_n = 0.}
+\]
+(Equivalently: velocity is purely tangential in pure rotation.)
+
+\subsection*{7(b) Summarize Eq. (2.190) in a sentence}
+
+Zohdi Eq. (2.190) states:
+\[
+\sum \bm M_{\text{ext},p} = \dot{\bm H}_{cg} + \bm r_{p\to cg}\times M\bar{\bm a}_{cg}.
+\]
+In words: the net external moment about point $p$ equals the rate of change of angular momentum about the CG plus a “transport” term due to CG acceleration.
+
+\newpage
+\subsection*{7(c) Expand Eq. (2.196) and show planar motion reduces it to Eq. (2.197)}
+
+Start from Zohdi Eq. (2.196):
+\[
+T = \frac12 M\bm v_{cg}\cdot \bm v_{cg}
+  + \frac12 \{\bm\omega\}^T [I_{cg}] \{\bm\omega\}.
+\]
+
+\textbf{Planar motion assumption:}
+rotation is only about the out-of-plane $z$ axis, so
+\[
+\{\bm\omega\} =
+\begin{bmatrix}
+0\\
+0\\
+\omega
+\end{bmatrix}.
+\]
+Also in planar motion, Zohdi notes $[I_{cg}] \Rightarrow I_{cg,zz}$ (Eq. 2.186), i.e.
+\[
+[I_{cg}] =
+\begin{bmatrix}
+\ast & \ast & 0\\
+\ast & \ast & 0\\
+0 & 0 & I_{cg,zz}
+\end{bmatrix}
+\quad\Rightarrow\quad
+\{\bm\omega\}^T [I_{cg}] \{\bm\omega\}
+=
+\begin{bmatrix}
+0 & 0 & \omega
+\end{bmatrix}
+\begin{bmatrix}
+\ast & \ast & 0\\
+\ast & \ast & 0\\
+0 & 0 & I_{cg,zz}
+\end{bmatrix}
+\begin{bmatrix}
+0\\
+0\\
+\omega
+\end{bmatrix}.
+\]
+Compute step-by-step:
+\[
+[I_{cg}]\{\bm\omega\}
+=
+\begin{bmatrix}
+0\\
+0\\
+I_{cg,zz}\omega
+\end{bmatrix},
+\]
+then
+\[
+\{\bm\omega\}^T([I_{cg}]\{\bm\omega\})
+=
+\begin{bmatrix}
+0 & 0 & \omega
+\end{bmatrix}
+\begin{bmatrix}
+0\\
+0\\
+I_{cg,zz}\omega
+\end{bmatrix}
+=
+I_{cg,zz}\omega^2.
+\]
+Thus Eq. (2.196) becomes:
+\[
+T = \frac12 M v_{cg}^2 + \frac12 I_{cg,zz}\omega^2.
+\]
+
+Zohdi Eq. (2.197) also writes planar rigid-body KE in the decomposed/integral form:
+\[
+T = \frac12 M\bm v_{cg}\cdot\bm v_{cg} + \frac12 \int \dot{\bm d}\cdot\dot{\bm d}\,dm,
+\]
+and for planar rotation that second term evaluates to $\frac12 I_{cg}\omega^2$, giving:
+\[
+T = \frac12 M v_{cg}^2 + \frac12 I_{cg}\omega^2,
+\]
+consistent with Eq. (2.197) line following in the text.
+
+\end{document}
