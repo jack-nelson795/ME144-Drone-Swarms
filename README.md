@@ -3,6 +3,7 @@ ME144 / ME244 Project Workspace
 ![swarm_control_emergent](https://github.com/user-attachments/assets/5ee9c3a4-f9eb-488b-b76a-6ed90f97a8a5)
 
 This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), and Project X (3D emergent swarm control sandbox).
+It also contains Project Y, a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export.
 
 Repository Layout
 -----------------
@@ -54,6 +55,20 @@ Speed/debug options (environment variables):
 Outputs are saved under:
 	projects/projectx/output/figures/
 	projects/projectx/output/logs/
+
+Project Y (DEM drone hostile-flight study)
+------------------------------------------
+Run the Project Y optimization + simulation pipeline:
+
+	python projects\projecty\run_projecty.py
+
+Outputs are saved under:
+	projects/projecty/output/
+	results/animations/final_simulation.gif
+
+Implementation notes:
+- The drone body is rendered as one sphere marker per active voxel on a regular lattice.
+- The final animation is exported as a viewable GIF in `results/animations/`.
 
 Project 3 (swarm GA + physics simulation)
 ----------------------------------------
