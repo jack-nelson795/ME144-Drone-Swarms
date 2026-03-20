@@ -1,16 +1,18 @@
 ME144 / ME244 Project Workspace
 ===============================
 ![swarm_control_emergent](https://github.com/user-attachments/assets/5ee9c3a4-f9eb-488b-b76a-6ed90f97a8a5)
+![final_simulation](https://github.com/user-attachments/assets/bb90d0f7-a79a-4a81-800d-c590a7d16b49)
 
-This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), and Project X (3D emergent swarm control sandbox).
-It also contains Project Y, a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export.
+This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), Project 4 (geometry / dynamics / elastostatics coursework assets), Project X (3D emergent swarm control sandbox), and Project Y (a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export).
 
 Repository Layout
 -----------------
 - me144_toolbox/ : shared objectives, optimizers, simulation, and plotting utilities
 - projects/project1/ : Project 1 scripts and outputs
 - projects/project3/ : Project 3 swarm simulation + GA workflow and figures
+- projects/project4/ : Project 4 notebooks and supporting geometry / dynamics / elastostatics folders
 - projects/projectx/ : Project X (3D emergent control) scripts and docs
+- projects/projecty/ : Project Y hostile-flight drone optimization, visuals, and docs
 
 Requirements
 ------------
@@ -56,6 +58,18 @@ Outputs are saved under:
 	projects/projectx/output/figures/
 	projects/projectx/output/logs/
 
+Project 4
+---------
+Project 4 is organized as a notebook-driven workspace with supporting subfolders:
+
+	projects/project4/main.ipynb
+	projects/project4/geometry/
+	projects/project4/dynamics/
+	projects/project4/elastostatics/
+	projects/project4/test_scripts/
+
+Use the notebook as the main entry point and the subfolders for the supporting derivations, scripts, and experiments tied to the project.
+
 Project Y (DEM drone hostile-flight study)
 ------------------------------------------
 Run the Project Y optimization + simulation pipeline:
@@ -64,11 +78,11 @@ Run the Project Y optimization + simulation pipeline:
 
 Outputs are saved under:
 	projects/projecty/output/
-	results/animations/final_simulation.gif
 
 Implementation notes:
 - The drone body is rendered as one sphere marker per active voxel on a regular lattice.
-- The final animation is exported as a viewable GIF in `results/animations/`.
+- The final animation and the design evolution animation are both exported as viewable GIFs in `projects/projecty/output/`.
+- Additional documentation for Project Y is available under `projects/projecty/docs/`.
 
 Project 3 (swarm GA + physics simulation)
 ----------------------------------------
