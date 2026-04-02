@@ -1,7 +1,9 @@
 ME144 / ME244 Project Workspace
 ===============================
-![swarm_control_emergent](https://github.com/user-attachments/assets/5ee9c3a4-f9eb-488b-b76a-6ed90f97a8a5)
-![final_simulation](https://github.com/user-attachments/assets/bb90d0f7-a79a-4a81-800d-c590a7d16b49)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5ee9c3a4-f9eb-488b-b76a-6ed90f97a8a5" width="39%" />
+  <img src="https://github.com/user-attachments/assets/bb90d0f7-a79a-4a81-800d-c590a7d16b49" width="60%" />
+</p>
 
 This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), Project 4 (geometry / dynamics / elastostatics coursework assets), Project X (3D emergent swarm control sandbox), and Project Y (a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export).
 
