@@ -27,17 +27,6 @@ Create a virtual environment and install dependencies:
 	.venv\Scripts\activate
 	pip install -r requirements.txt
 
-Project 1 (complete)
---------------------
-Run Project 1 deliverables (Newton + GA):
-
-	python -m projects.project1.run_project1
-	python -m projects.project1.run_ga_project1
-	python -m projects.project1.run_ga_phi_psi_project1
-
-Outputs are saved under:
-	projects/project1/output/figures/
-	projects/project1/output/logs/
 
 Project X (sandbox)
 -------------------
@@ -62,6 +51,45 @@ Speed/debug options (environment variables):
 Outputs are saved under:
 	projects/projectx/output/figures/
 	projects/projectx/output/logs/
+
+Project Y (DEM drone hostile-flight study)
+------------------------------------------
+Run the Project Y optimization + simulation pipeline:
+
+	python projects\projecty\run_projecty.py
+
+Outputs are saved under:
+	projects/projecty/output/
+
+Implementation notes:
+- The drone body is rendered as one sphere marker per active voxel on a regular lattice.
+- The final animation and the design evolution animation are both exported as viewable GIFs in `projects/projecty/output/`.
+- Additional documentation for Project Y is available under `projects/projecty/docs/`.
+
+
+Project 1
+--------------------
+Run Project 1 deliverables (Newton + GA):
+
+	python -m projects.project1.run_project1
+	python -m projects.project1.run_ga_project1
+	python -m projects.project1.run_ga_phi_psi_project1
+
+Outputs are saved under:
+	projects/project1/output/figures/
+	projects/project1/output/logs/
+
+Project 3 (swarm GA + physics simulation)
+----------------------------------------
+Run the Project 3 notebook workflow from the Project 3 directory:
+
+	cd projects\project3
+	python write_parameters.py
+
+Then open and run `test_scripts.ipynb` to generate the figures, MP4, and snapshot frames.
+
+Outputs are saved under:
+	projects/project3/figures/
 
 Project 4
 ---------
@@ -120,31 +148,9 @@ Implementation notes:
 - The workflow generates the fixed-vector verification, GA convergence plots, best-design summary files, optimized-design visuals, and baseline-versus-optimized sensitivity-study figures.
 - The best recorded design reaches a cost of approximately `0.1874` with hit fraction `0.8043`; sensitivity summaries are saved as JSON alongside the figures.
 
-Project Y (DEM drone hostile-flight study)
-------------------------------------------
-Run the Project Y optimization + simulation pipeline:
 
-	python projects\projecty\run_projecty.py
 
-Outputs are saved under:
-	projects/projecty/output/
 
-Implementation notes:
-- The drone body is rendered as one sphere marker per active voxel on a regular lattice.
-- The final animation and the design evolution animation are both exported as viewable GIFs in `projects/projecty/output/`.
-- Additional documentation for Project Y is available under `projects/projecty/docs/`.
-
-Project 3 (swarm GA + physics simulation)
-----------------------------------------
-Run the Project 3 notebook workflow from the Project 3 directory:
-
-	cd projects\project3
-	python write_parameters.py
-
-Then open and run `test_scripts.ipynb` to generate the figures, MP4, and snapshot frames.
-
-Outputs are saved under:
-	projects/project3/figures/
 
 Notes
 -----
