@@ -5,7 +5,7 @@ ME144 / ME244 Project Workspace
   <img src="https://github.com/user-attachments/assets/bb90d0f7-a79a-4a81-800d-c590a7d16b49" width="60%" />
 </p>
 
-This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), Project 4 (geometry / dynamics / elastostatics coursework assets), Project X (3D emergent swarm control sandbox), and Project Y (a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export).
+This repository contains Project 1 (optimization methods), Project 3 (swarm GA + physics simulation), Project 4 (geometry / dynamics / elastostatics coursework assets), Project 5 (Hashin-Shtrikman composite optimization), Project 6 (LiDAR detection modeling and simulation), Project 7 (aerial dispersal GA + sensitivity analysis), Project X (3D emergent swarm control sandbox), and Project Y (a Chapter 4 inspired voxel/DEM hostile-flight drone study with GIF animation export).
 
 Repository Layout
 -----------------
@@ -13,6 +13,9 @@ Repository Layout
 - projects/project1/ : Project 1 scripts and outputs
 - projects/project3/ : Project 3 swarm simulation + GA workflow and figures
 - projects/project4/ : Project 4 notebooks and supporting geometry / dynamics / elastostatics folders
+- projects/project5/ : Project 5 Hashin-Shtrikman composite optimization workflow and report data
+- projects/project6/ : Project 6 LiDAR notebook, simulation module, and output figures
+- projects/project7/ : Project 7 aerial dispersal optimization, sensitivity study, and generated outputs
 - projects/projectx/ : Project X (3D emergent control) scripts and docs
 - projects/projecty/ : Project Y hostile-flight drone optimization, visuals, and docs
 
@@ -71,6 +74,51 @@ Project 4 is organized as a notebook-driven workspace with supporting subfolders
 	projects/project4/test_scripts/
 
 Use the notebook as the main entry point and the subfolders for the supporting derivations, scripts, and experiments tied to the project.
+
+Project 5 (Hashin-Shtrikman composite optimization)
+---------------------------------------------------
+Run the Project 5 deliverables:
+
+	python -m projects.project5.run_project5
+
+Outputs are saved under:
+	projects/project5/output/figures/
+	projects/project5/output/data/
+	projects/project5/output/tables/
+	projects/project5/output/report_data/
+
+Implementation notes:
+- `run_project5.py` is the main one-stop entry point for the three GA cases, convergence plots, top-4 tables, and report-ready exports.
+- Supporting scripts such as `export_report_data.py` and `build_report_data.py` can be run separately if you want to regenerate only the report-data layers.
+
+Project 6 (LiDAR detection modeling and simulation)
+---------------------------------------------------
+Run the Project 6 notebook workflow from the Project 6 directory:
+
+	cd projects\project6
+	jupyter notebook main.ipynb
+
+The notebook generates the true surface plots, reconstructed point clouds, reconstruction-error summary, and an optional ray-animation preview for the three surface amplitudes.
+
+Outputs are saved under:
+	projects/project6/output/
+
+Implementation notes:
+- Surface geometry lives in `projects/project6/lidar/surfaces.py`.
+- The ray-tracing, reflection, reconstruction, and animation routines live in `projects/project6/lidar/simulation.py`.
+
+Project 7 (aerial dispersal GA + sensitivity analysis)
+------------------------------------------------------
+Run the Project 7 pipeline:
+
+	python projects\project7\run_project7.py
+
+Outputs are saved under:
+	projects/project7/project7_outputs/
+
+Implementation notes:
+- The workflow generates the fixed-vector verification, GA convergence plots, best-design summary files, optimized-design visuals, and baseline-versus-optimized sensitivity-study figures.
+- The best recorded design reaches a cost of approximately `0.1874` with hit fraction `0.8043`; sensitivity summaries are saved as JSON alongside the figures.
 
 Project Y (DEM drone hostile-flight study)
 ------------------------------------------

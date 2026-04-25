@@ -1,40 +1,50 @@
 # Project 5
 
-This folder contains a complete Project 5 solution for the Hashin-Shtrikman composite optimization brief.
+This project implements the Hashin-Shtrikman composite optimization workflow for the Project 5 brief:
 
-Main files:
+- exact Hashin-Shtrikman property bounds and effective-property calculations
+- three GA search cases for the design-variable studies
+- convergence plotting, top-design tables, and summary exports
+- report-ready data packaging and audit files for the final writeup
 
-- `Hashin-Shtrikman_INCOMPLETE.ipynb`: completed notebook based on the provided GSI starter notebook name
-- `run_project5.py`: runs the three GA cases, generates convergence histories, plots, and top-4 tables
-- `hashin_shtrikman.py`: exact property-bound, effective-property, concentration-factor, and cost-function implementation from the PDF
-- `ga.py`: genetic algorithm implementation for Cases A, B, and C
-- `export_report_data.py`: generates a report-ready JSON package and plain-text summary for drafting the final writeup elsewhere
-- `build_report_data.py`: generates the audited report-data package requested for the final submission support workflow
-- `output/figures/`: saved convergence plots
-- `output/data/`: saved histories, top-4 tables, and summary JSON
-- `output/tables/`: full-precision and report-ready tables
-- `output/report_data/`: audits, summaries, cost breakdowns, and technical notes
+## Run
 
-How to regenerate everything:
+From the repository root:
 
 ```powershell
 python -m projects.project5.run_project5
 ```
 
-`run_project5.py` is now the main one-stop entry point: it generates the base GA outputs, figures, report-ready tables, and the audited files under `output/report_data/`.
+## Outputs
 
-Optional:
+The main pipeline writes figures, raw data, tables, and report-support files under `projects/project5/output/`:
+
+- `output/figures/case_a_convergence.png`
+- `output/figures/case_b_convergence.png`
+- `output/figures/case_c_convergence.png`
+- `output/data/case_a_history.csv`
+- `output/data/case_b_history.csv`
+- `output/data/case_c_history.csv`
+- `output/data/project5_summary.json`
+- `output/tables/case_a_top4_report_ready.csv`
+- `output/tables/case_b_top4_report_ready.csv`
+- `output/tables/case_c_top4_report_ready.csv`
+- `output/report_data/report_summary.json`
+- `output/report_data/report_data_manifest.json`
+
+## Project Files
+
+- `run_project5.py` is the one-stop entry point for the full workflow.
+- `hashin_shtrikman.py` contains the property, bound, and cost-function implementation.
+- `ga.py` contains the genetic algorithm used for Cases A, B, and C.
+- `export_report_data.py` and `build_report_data.py` generate the report-ready and audited support files.
+- `Hashin_Shtrikman_provided.ipynb` is the notebook version of the project workspace.
+
+## Optional Regeneration
+
+If you only want to rebuild the report-support layers:
 
 ```powershell
 python -m projects.project5.export_report_data
 python -m projects.project5.build_report_data
 ```
-
-Use those only if you want to regenerate the report-data layers separately.
-
-The most useful handoff files for writing the final report are:
-
-- `output/data/report_ready_package.json`
-- `output/data/report_ready_summary.txt`
-
-These bundle the numerical results, top designs, comparison notes, and file references to aid in writing the report.
