@@ -1,0 +1,52 @@
+{
+  "seed": 144,
+  "requested_fixed_lam": [
+    69.3,
+    0.0,
+    175.1,
+    -11.92,
+    0.00429,
+    0.183,
+    0.02159,
+    0.6921,
+    8.21e-06,
+    48.78,
+    48.5,
+    1520.7
+  ],
+  "requested_fixed_lam_stats": {
+    "cost": 0.92996,
+    "hit_count": 0,
+    "hit_fraction": 0.0,
+    "num_particles_released": 0,
+    "num_particles_total": 30,
+    "aircraft_height_term": 0.2996,
+    "landed_particles": 0
+  },
+  "requested_fixed_lam_passes_0p1800": false,
+  "benchmark_fixed_lam_used_for_assignment_outputs": [
+    69.3,
+    0.0,
+    175.1,
+    -11.92,
+    0.00429,
+    0.183,
+    0.02159,
+    0.6921,
+    8.21,
+    48.78,
+    48.5,
+    1520.7
+  ],
+  "benchmark_fixed_lam_stats": {
+    "cost": 0.17995999999999995,
+    "hit_count": 25,
+    "hit_fraction": 0.8333333333333334,
+    "num_particles_released": 30,
+    "num_particles_total": 30,
+    "aircraft_height_term": 0.2996,
+    "landed_particles": 30
+  },
+  "benchmark_fixed_lam_passes_0p1800": true,
+  "note": "The PDF bounds and notebook debug cell use a flow-rate entry near 8.21 m^3/s. Using 8.21e-6 releases zero tracked droplets with the provided super-particle scaling, so the assignment-consistent benchmark uses 8.21."
+}

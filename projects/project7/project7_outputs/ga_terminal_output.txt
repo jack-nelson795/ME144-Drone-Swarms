@@ -1,0 +1,38 @@
+Generation : 2
+Best Cost  : 0.5934702909516265
+Generation : 3
+Best Cost  : 0.48278925098403064
+Generation : 4
+Best Cost  : 0.3486022871861138
+Generation : 5
+Best Cost  : 0.3486022871861138
+Generation : 6
+Best Cost  : 0.32676327892683626
+Generation : 7
+Best Cost  : 0.32676327892683626
+Generation : 8
+Best Cost  : 0.32676327892683626
+Generation : 9
+Best Cost  : 0.32676327892683626
+Generation : 10
+Best Cost  : 0.32676327892683626
+Generation : 11
+Best Cost  : 0.32676327892683626
+Generation : 12
+Best Cost  : 0.2241010783000513
+Generation : 13
+Best Cost  : 0.20857059426129027
+Generation : 14
+Best Cost  : 0.20857059426129027
+Generation : 15
+Best Cost  : 0.20857059426129027
+Generation : 16
+Best Cost  : 0.18741793172278529
+Generation : 17
+Best Cost  : 0.18741793172278529
+Generation : 18
+Best Cost  : 0.18741793172278529
+Generation : 19
+Best Cost  : 0.18741793172278529
+Generation : 20
+Best Cost  : 0.18741793172278529

@@ -1,0 +1,11 @@
+metric,value
+requested_fixed_lam_cost,0.92996
+requested_fixed_lam_hit_fraction,0.0
+requested_fixed_lam_particles_released,0
+requested_fixed_lam_aircraft_height_term,0.2996
+requested_fixed_lam_passes_0p1800,False
+benchmark_fixed_lam_cost,0.17995999999999995
+benchmark_fixed_lam_hit_fraction,0.8333333333333334
+benchmark_fixed_lam_particles_released,30
+benchmark_fixed_lam_aircraft_height_term,0.2996
+benchmark_fixed_lam_passes_0p1800,True

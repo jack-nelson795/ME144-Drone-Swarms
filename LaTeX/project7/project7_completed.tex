@@ -1,0 +1,384 @@
+% Document setup
+\RequirePackage{fix-cm}
+\documentclass{article}
+\usepackage{preamble}
+
+%===============================%
+%=============Inputs============%
+%===============================%
+\newcommand{\studentname}{Jack Nelson}
+
+%===============================%
+%====Make Solutions Visible=====%
+%===============================%
+\showsolutionstrue
+
+%===============================%
+%=============Figures===========%
+%===============================%
+% Remember to start figures with 
+
+% \begin{figure}[H]
+
+% the [H] is critical!
+
+
+%==============================%
+%=====Beginning of Document====%
+%==============================%
+\begin{document}
+\pagestyle{mypagestyle}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Project 7: Aerial Firefighting
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\project{7}{Aerial Firefighting (100 points)}{Wed. Apr. 22 @ 11:59PM PST}
+
+
+\subsection*{Motivation}
+Aerial firefighting is a critical tool in modern wildfire suppression, particularly as climate change drives longer fire seasons and larger burn areas. Fixed-wing aircraft and air tankers can deliver fire retardant over steep, inaccessible terrain far faster than ground crews, but their effectiveness depends heavily on \textit{when}, \textit{where}, and \textit{how} the retardant is released. Poor drop geometry---wrong altitude, speed, or heading---can scatter retardant outside the fire perimeter entirely. Optimizing these parameters manually is infeasible given the high-dimensional design space and the complex, coupled physics involved. This project uses physics-based simulation paired with a genetic algorithm to systematically search for drop configurations that maximize retardant coverage over a target fire zone.
+
+\subsection*{Governing Equations}
+The simulation couples aircraft path kinematics with Lagrangian particle dynamics. The aircraft follows a parametric sine-wave trajectory $\br(u) = (u + x_0,\; y_0,\; A\sin(2\pi u/\lambda) + z_0)^T$, advanced each timestep by $\Delta u = V\Delta t / \|\br'(u)\|$ to enforce constant airspeed. Retardant droplets are ejected from four nozzles with velocity $\bv_\text{drop} = \bv_\text{aircraft} + v_e\,\hat{\bn}_\text{spray}$, where the spray direction $\hat{\bn}_\text{spray}$ is stochastically perturbed to model nozzle spread. Once airborne, each droplet obeys Newton's second law,
+\begin{equation}
+    m\ddot{\br} = \bff_\text{drag} + m\bg,
+\end{equation}
+where the drag force is $\bff_\text{drag} = \frac{1}{2}\rho_\text{air} C_D (\pi r_p^2)\|\bv_\text{rel}\|\bv_\text{rel}$ with $\bv_\text{rel} = (\bv_\text{wind} + \bv_\text{up}) - \bv_\text{drop}$. Above the fire footprint, a thermal updraft $v_\text{up}(y) = v_{\text{up,max}}\exp(-a_{\text{decay}}\max(0,y))$ opposes descent. $v_{\text{up,max}}$ and $a_{\text{decay}}$ are the maximum velocity of the updraft (closest to the fire) and the decay rate as the air moves away from the fire, respectively. The equations of motion are integrated via forward Euler, and a drop is considered successful if it lands within the prescribed fire boundary. The optimization objective is to minimize the cost 
+\begin{equation}
+    \Pi = W_1\left(1 - \frac{N_\text{hit}}{N_\text{total}} \right) + W_2\left(1 - \frac{y_0}{y_{\text{max}}} \right)
+\end{equation}
+which maximizes the fraction of particles that hit the fire region, $N_{\text{hit}}$ while flying as high as possible, $y_0$. Note, starting height of the plane is constant in this project.
+
+
+
+\subsection*{Modifications and Comments on Original Paper}
+Several modifications were made for this assignment, but you can read the full paper that inspired this project \href{https://msol.berkeley.edu/wp-content/uploads/2023/10/181.pdf}{here}. First, the flight path of the plane is defined by a parametric curve, not calculated by variables such as radial velocity. We feel a curve is more intuitive and can be clearly communicated to a pilot when they fly the mission. The domain of fire is now a continuous rectangle, rather than a region of discrete targets. This was for simplicity of the simulation. This led to a modified cost function, since the original maximized particles in the fire region and targets hit. Now the objective is to maximize particles in the region and the height of the aircraft. Flying higher is desirable to enhance pilot safety. 
+
+
+\subsection*{Deliverables}
+Fill in the answer boxes on this report. Once your 
+\begin{enumerate}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 1
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[1.] \textbf{Particle physics -- drag and updraft (15 points):}
+In flight, each active droplet obeys
+\begin{equation}
+    m\,\ddot{\br} = \bff_\text{drag} + m\,\bg,
+    \label{eq:eom}
+\end{equation}
+where the aerodynamic drag force is
+\begin{equation}
+    \bff_\text{drag} = \tfrac{1}{2}\,\rho_\text{air}\,C_D\,(\pi r^2)\,\|\bv_\text{rel}\|\,\bv_\text{rel},
+    \quad \bv_\text{rel} = (\bv_\text{wind} + \bv_\text{up}) - \bv_\text{drop}.
+    \label{eq:drag}
+\end{equation}
+In the original paper, the fire-induced updraft velocity (applied only above the fire footprint) is
+\begin{equation}
+    v_\text{up}(y) = 30\,\exp\!\left(-0.005\,\max(0,\,y)\right)\,\hat{\be}_y,
+    \label{eq:updraft}
+\end{equation}
+where $y$ is the droplet height above the ground.
+
+\begin{enumerate}[(i)]
+    \item The simulation uses forward Euler integration. Write out the discrete update equations for $\bv$ and $\br$ at timestep $t+1$ from timestep $t$.
+    \item What physical phenomenon does \cref{eq:updraft} model? How does the exponential decay in $y$ reflect the behavior of a real fire plume?
+    \item Identify one limitation of the drag model in \cref{eq:drag} (e.g.\ regarding the droplet Reynolds number regime or shape assumption).
+\end{enumerate}
+
+\begin{answer}
+For part (i), with
+\[
+\ba_t = \frac{\bff_{\text{drag},t}}{m} + \bg,
+\]
+the forward Euler updates are
+\[
+\bv_{t+1} = \bv_t + \ba_t \,\Delta t
+\]
+and
+\[
+\br_{t+1} = \br_t + \bv_{t+1}\,\Delta t.
+\]
+Using the variables from the simulation, this is
+\[
+\bv_{t+1} = \bv_t + \left(\frac{\bff_{\text{drag},t}}{\rho_{\text{ret}}\,v_p} + \bg\right)\Delta t,
+\qquad
+\br_{t+1} = \br_t + \bv_{t+1}\Delta t.
+\]
+
+For part (ii), \cref{eq:updraft} models the buoyant thermal updraft generated by the fire plume. Hot air above the fire rises most strongly close to the ground and near the flame zone, so the vertical updraft is largest near the fire and weakens with height. The exponential decay in $y$ captures that the plume loses intensity as it entrains surrounding cooler air and spreads out farther above the fire.
+
+For part (iii), one limitation of the drag model is that it assumes the droplets behave like spherical particles with a prescribed Reynolds-number-based drag coefficient. Real retardant droplets can deform, break up, merge, and deviate from a perfect spherical shape, so the model does not capture droplet breakup and shape-dependent drag changes.
+\end{answer}
+
+
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[2. (a)] \textbf{Design vector $\BLambda$ and parameter bounds (5 points):}
+The design vector
+\begin{equation}
+    \BLambda = \bigl[V,\; x_0,\; y_0,\; z_0,\; r_p,\; A_s,\; t_\text{start},\; t_\text{end},\; \dot{Q},\; v_e,\; A_c,\; \lambda_c\bigr]
+    \label{eq:lam}
+\end{equation}
+has 12 components.
+The parameter ranges (from \texttt{geneticalgorithm.py}) are summarized in \cref{tab:lam}.
+
+\begin{table}[H]
+\centering
+\caption{Design vector components and their admissible ranges.}
+\label{tab:lam}
+\begin{tabular}{clccc}
+\toprule
+Index & Symbol & Description & Lower Bound & Upper Bound \\
+\midrule
+0  & $V$             & Aircraft speed              & $50$ m/s & $100$ m/s \\
+1  & $x_0$           & Initial $x$-position        & $0$ m              & $0$ m (fixed)       \\
+2  & $y_0$           & Initial $y$-position        & $50$ m              & $250$ m             \\
+3  & $z_0$           & Initial $z$-position        & $-100$ m           & $100$ m             \\
+4  & $r_p$           & Droplet radius              & $0.001$ m          & $0.01$ m            \\
+5  & $A_s$           & Spray amplitude             & $0$                & $0.5$               \\
+6  & $t_\text{start}$& Release start time          & $0$ s              & $0.25\,T$           \\
+7  & $t_\text{end}$  & Release end time            & $0.25\,T$          & $T$                 \\
+8  & $\dot{Q}$       & Retardant flow rate         & $2$ m$^3$/s        & $10$ m$^3$/s        \\
+9  & $v_e$           & Ejection speed              & $0$ m/s            & $150$ m/s           \\
+10 & $A_c$           & Curve amplitude             & $1$ m              & $100$ m             \\
+11 & $\lambda_c$     & Curve wavelength            & $500$ m            & $2000$ m            \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In a sentence, why is $x_0$ fixed at $0$ rather than included in the optimization?
+
+\begin{answer}
+$x_0$ is fixed at $0$ so the aircraft always starts from one end of the domain rather than shifting the entire trajectory forward or backward, which removes a redundant degree of freedom and keeps the optimization focused on the physically meaningful release and path variables.
+\end{answer}
+
+
+\newpage
+\item[2. (b)] \textbf{Implement \texttt{student\_simulation.py} (40 points):}
+Open \texttt{student\_simulation.py}. Rename the file \texttt{simulation.py}. Follow the instructions below then run \texttt{main.py} to generate figures and numerical results.
+When finished, confirm your implementation reproduces a cost of \textbf{0.1800} when run with the fixed design vector:
+\begin{center}
+\texttt{LAM = [69.3, 0.0, 175.1, -11.92, 0.00429, 0.183, 0.02159, 0.6921, 8.21e-6, 48.78, 48.5, 1520.7]}
+\end{center}
+
+\begin{enumerate}[(i)]
+    \item \textbf{Step~1 -- \texttt{\_update\_aircraft\_state}:}
+          The aircraft travels along a parametric curve at constant airspeed $V$.
+          Fill in: (a) the position and tangent from the curve at the current parameter $u$,
+          (b) the step size $\Delta u = V\,\Delta t\,/\,\|\bt\|$ so the aircraft advances at constant speed, and
+          (c) the new \texttt{airplane.pos}.
+
+    \item \textbf{Step~2 -- \texttt{\_compute\_nozzle\_positions}:}
+          Four nozzles are arranged around the aircraft.
+          Fill in the lateral and aft offsets for nozzles 1, 2, and 3, and the
+          vertical drop from the sprayer base to its end.
+          Reference the nozzle layout comments in the file.
+
+    \item \textbf{Step~3 -- \texttt{\_compute\_spray\_velocities}:}
+          The spray direction is the nozzle axis perturbed by random noise.
+          Fill in: (a) the perturbed spray direction
+          $\hat{\bn}_\text{base} + A_s\,\hat{\bn}_\text{rand}$, and
+          (b) the final droplet velocity $\bv_\text{nozzle} + v_e\,\hat{\bn}_\text{spray}$.
+
+    \item \textbf{Step~4 -- \texttt{\_release\_droplets}:}
+          Fill in the one-timestep position pre-integration
+          (\texttt{sprayer\_end + DT * velocities}) so each droplet starts
+          one step ahead of the nozzle.
+
+    \item \textbf{Step~5 -- \texttt{\_in\_fire\_zone}:}
+          Fill in the squared distance from each particle to the circle center
+          $(x - x_c)^2 + (z - z_c)^2$, and the comparison against $R^2$.
+          The box case is already provided for reference.
+
+    \item \textbf{Step~6 -- \texttt{\_compute\_updraft}:}
+          Fill in the updraft speed for particles inside the fire zone:
+          \begin{equation*}
+              v_\text{up}(y) = V_\text{up}\,\exp\!\bigl(-\kappa\,\max(0,\,y)\bigr),
+          \end{equation*}
+          where $V_\text{up} = $ \texttt{UPDRAFT\_VELOCITY} and $\kappa = $ \texttt{UPDRAFT\_DECAY}.
+
+    \item \textbf{Step~7 -- \texttt{\_compute\_drag}:}
+          Fill in the Reynolds number
+          $\mathrm{Re} = 2\,r_p\,\rho_a\,|\bv_\text{rel}|\,/\,\mu$.
+          The Chow piecewise $C_D$ table and the drag force assembly are already provided.
+
+    \item \textbf{Step~8 -- \texttt{\_step\_physics}:}
+          Fill in three lines using Newton's second law and Semi-Implicit Euler:
+          \begin{align*}
+              \bv_\text{rel} &= (\bv_\text{wind} + \bv_\text{up}) - \bv_\text{curr}, \\
+              \ba             &= \bff_\text{drag}\,/\,(\rho_\text{ret}\,v_p) + \bg, \\
+              \bv             &\mathrel{+}= \ba\,\Delta t, \\ 
+              \br              &\mathrel{+}= \bv\,\Delta t.
+          \end{align*}
+
+    \item \textbf{Step~9 -- \texttt{simulate\_path\_with\_nozzles}:}
+          Fill in the physics mask passed to \texttt{\_step\_physics}:
+          particles that are \texttt{active} and \textbf{not} yet \texttt{landed}.
+
+    \item \textbf{Step~10 -- \texttt{calculate\_cost}:}
+          Fill in the cost function below:
+          \begin{equation*} \label{eq:cost}
+              \Pi = W_1\!\left(1 - \frac{N_\text{hit}}{N_\text{total}}\right)
+                  + W_2\!\left(1 - \frac{y_0}{y_{\max}}\right).
+          \end{equation*}
+          where $N_\text{hit}$ is the number of particles that land within the fire boundary,  $N_\text{total}$ is the total number of particles released, $y_0$ is the fixed height of the aircraft, and $y_{\text{max}}$ is the maximum possible height we allow the plane to fly.
+To help with debugging, confirm the cost printed is 0.1800 and uncomment the animation.
+\end{enumerate}
+\begin{answer}
+
+The simulation was fully implemented, and each component was verified during development.
+
+To validate correctness, the simulation was run using the provided fixed design vector:
+\[
+\Lambda = [69.3,\; 0.0,\; 175.1,\; -11.92,\; 0.00429,\; 0.183,\; 0.02159,\; 0.6921,\; 8.21,\; 48.78,\; 48.5,\; 1520.7]
+\]
+
+This produced a cost:
+\[
+\Pi = 0.179960
+\]
+
+which matches the expected benchmark value of approximately 0.1800. Therefore, the implementation is consistent with the assignment requirements.
+
+\end{answer}
+
+
+
+\newpage
+\item[2. (c)] \textbf{GA convergence (10 points):}
+Run the genetic algorithm (\texttt{geneticalgorithm.py}) using your completed simulation and plot the best cost,
+average cost, and parents' average cost versus generation number.
+Report the best design vector $\BLambda^*$ found and its corresponding cost $\Pi(\BLambda^*)$.
+Include a screenshot of the animation for the optimized design.
+
+\begin{answer}
+Fixed-LAM verification with the assignment-consistent benchmark flow rate $Q=8.21$ gave
+\[
+\Pi = 0.179960,\qquad N_{\text{hit}} = 25,\qquad N_{\text{total}} = 30,\qquad \frac{N_{\text{hit}}}{N_{\text{total}}} = 0.833333,
+\]
+with height contribution
+\[
+1-\frac{y_0}{y_{\max}} = 0.299600.
+\]
+This passed the $0.1800$ check. The literal vector written with $Q=8.21\times 10^{-6}$ instead gave cost $0.929960$ and released $0$ tracked droplets, so the assignment-consistent benchmark used $Q=8.21$.
+
+The GA was run for $20$ generations. The best design found was
+\[
+\Lambda^* = 
+[83.68,\; 0.0,\; 221.67,\; -15.95,\; 0.00371,\; 0.15536,\; 0.01655,\; 0.63800,\; 8.91568,\; 92.67,\; 36.63,\; 1460.99]
+\]
+For this design,
+\[
+\Pi(\BLambda^*) = 0.187418,
+\qquad
+\text{hit fraction} = 0.804348,
+\qquad
+N_{\text{hit}} = 37,
+\qquad
+\text{particles released} = 46.
+\]
+
+The convergence plots show that the best cost drops substantially over the run, the average population cost stays above the best cost, and the parents' average cost moves closer to the best curve in later generations, indicating improvement of the surviving designs while still maintaining some population spread.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{ga_best_cost_vs_generation.png}
+\includegraphics[width=0.48\textwidth]{ga_average_cost_vs_generation.png}
+\caption{Best cost vs.\ generation (left) and average cost vs.\ generation (right).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{ga_parents_average_cost_vs_generation.png}
+\includegraphics[width=0.48\textwidth]{ga_convergence_combined.png}
+\caption{Parents' average cost vs.\ generation (left) and combined GA convergence plot (right).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.75\textwidth]{optimized_design_screenshot.png}
+\caption{Optimized design screenshot showing the aircraft path, droplet spread, and fire region.}
+\end{figure}
+\end{answer}
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\item[3.] \textbf{Particle budget and flow rate (5 points):}
+The total number of particles in the simulation is
+\begin{equation}
+    N_\text{total} = \left\lfloor \frac{V_\text{tank}}{v_p} \right\rfloor, \qquad v_p = \tfrac{4}{3}\pi r_p^3,
+    \label{eq:ntotal}
+\end{equation}
+and the number released per timestep is $\lfloor \dot{Q}\,\Delta t / v_p \rfloor$.
+
+
+The simulation has been updated to use more realistic droplet radii ($0.001$--$0.01$ m, or $1$--$10$ mm diameter) compared to earlier versions that used much larger droplets. To keep particle counts computationally manageable with these realistic smaller droplets, each of the smaller tracked droplets is a "super-particle" representing ($10^6$) droplets. 
+
+Why is using realistic droplet sizes with a full-size tank problematic computationally, and what trade-off does the super-particle method introduce?
+
+\begin{answer}
+Using realistic droplet sizes makes $v_p=\tfrac{4}{3}\pi r_p^3$ extremely small, so a full-size tank would correspond to an enormous number of individual droplets. Tracking every droplet would make the simulation prohibitively expensive in memory and runtime because each droplet would need its own position, velocity, drag, updraft interaction, and landing check at every timestep.
+
+The super-particle method reduces the computational cost by letting one tracked particle represent many physical droplets, but the trade-off is that the simulation no longer resolves fine-scale droplet-to-droplet variability exactly. In particular, it smooths out some stochastic detail and assumes the represented droplets behave collectively rather than independently.
+\end{answer}
+
+
+\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Problem 4
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\item[4.] \textbf{Mini-Sensitivity Analysis (25 Points):}
+A sensitivity analysis tells us how much an outcome changes with respect to changes in its input variable(s). Mathworks offers a nice summary \href{https://www.mathworks.com/help/sldo/ug/what-is-sensitivity-analysis.html}{here}. In this problem we examine how ``sensitive" our cost is to the drop velocity of the particles and the drop velocity of the plane. We have already coded the sample. First, run the code with 
+\begin{lstlisting}
+    ga_results_path = ''
+\end{lstlisting}
+and add the plots below. Then, fill in the path to your pickle of your simulation's genetic algorithm results (should just be ga\_results.pkl). Add the plots below, clearly label each set of plots.\\
+Looking at the output plots, argue why a genetic algorithm is a good choice of optimizer for this problem.
+
+\begin{answer}
+For the baseline case with \texttt{ga\_results\_path = ''}, the sampled minimum cost was $0.149960$ at plane velocity $63.49$ m/s and particle drop velocity $10.71$ m/s. The sampled maximum cost was $0.929960$, giving a cost range of $0.780000$.
+
+For the optimized case with \texttt{ga\_results\_path = 'ga\_results.pkl'}, the sampled minimum cost was $0.070027$ at plane velocity $67.46$ m/s and particle drop velocity $0.00$ m/s. The sampled maximum cost was $0.911331$, giving a cost range of $0.841304$.
+
+These plots show that the cost surface is nonlinear and localized rather than a smooth convex bowl. There are regions of low cost surrounded by less favorable regions, and the response changes differently with aircraft velocity and drop velocity across the domain. Because of that multi-region structure, a genetic algorithm is a good choice: it can search broadly over the design space, does not rely on gradient information, and is less likely to get trapped in a poor local minimum than a local search method.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{
+default_sensitivity_heatmap.png}
+\includegraphics[width=0.48\textwidth]{default_sensitivity_surface.png}
+\caption{Baseline sensitivity analysis using \texttt{ga\_results\_path = ''}: heatmap (left) and surface plot (right).}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.48\textwidth]{optimized_sensitivity_heatmap.png}
+\includegraphics[width=0.48\textwidth]{optimized_sensitivity_surface.png}
+\caption{Optimized sensitivity analysis using \texttt{ga\_results\_path = 'ga\_results.pkl'}: heatmap (left) and surface plot (right).}
+\end{figure}
+\end{answer}
+
+\end{enumerate}
+
+\subsection*{Submission}
+\begin{enumerate}
+    \item Submit the PDF copy of your typed report on Gradescope before the end of day (11:59 pm PST).
+\end{enumerate}
+
+
+% End document
+\end{document}

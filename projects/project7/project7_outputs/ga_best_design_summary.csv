@@ -1,0 +1,11 @@
+metric,value
+seed,144
+best_cost,0.18741793172278529
+hit_fraction,0.8043478260869565
+hit_count,37
+total_particles_released,46
+landed_particles,46
+generations_completed,20
+final_generation_best_cost,0.18741793172278529
+final_generation_average_cost,0.5070166953323929
+final_generation_parents_average_cost,0.20376177236454548

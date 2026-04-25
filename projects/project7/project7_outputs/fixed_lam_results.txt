@@ -1,0 +1,21 @@
+Fixed LAM Results
+
+Requested vector from prompt:
+[69.3, 0.0, 175.1, -11.92, 0.00429, 0.183, 0.02159, 0.6921, 8.21e-06, 48.78, 48.5, 1520.7]
+Cost: 0.929960
+N_hit: 0
+N_total: 30
+Hit fraction: 0.000000
+y0 contribution: 0.299600
+0.1800 check: FAIL
+
+Assignment-consistent benchmark used for report outputs:
+[69.3, 0.0, 175.1, -11.92, 0.00429, 0.183, 0.02159, 0.6921, 8.21, 48.78, 48.5, 1520.7]
+Cost: 0.179960
+N_hit: 25
+N_total: 30
+Hit fraction: 0.833333
+y0 contribution: 0.299600
+0.1800 check: PASS
+
+Note: the literal 8.21e-6 flow-rate entry releases zero tracked droplets with the provided scaling; the assignment-consistent benchmark uses 8.21 and reproduces ~0.1800.

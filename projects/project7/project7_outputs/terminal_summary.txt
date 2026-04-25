@@ -1,0 +1,33 @@
+Generated parameters.pkl and synced student_simulation.py -> simulation.py.
+Smoke test passed: all project7 Python modules imported successfully.
+Fixed-vector check: requested vector cost = 0.9300; assignment-consistent benchmark cost = 0.1800.
+GA complete: best cost = 0.1874, hit fraction = 0.8043.
+Saved optimized design screenshot.
+Saved default and optimized sensitivity-analysis plots.
+
+Output folder contents:
+- default_sensitivity_heatmap.png
+- default_sensitivity_summary.json
+- default_sensitivity_surface.png
+- fixed_lam_verification.csv
+- fixed_lam_verification.json
+- fixed_lam_verification.txt
+- ga_average_cost_vs_generation.png
+- ga_best_cost_vs_generation.png
+- ga_best_design_summary.csv
+- ga_best_design_summary.json
+- ga_best_design_vector.csv
+- ga_best_design_vector.txt
+- ga_convergence_combined.png
+- ga_parents_average_cost_vs_generation.png
+- ga_results.pkl
+- ga_terminal_output.txt
+- optimized_animation.mp4
+- optimized_design_screenshot.png
+- optimized_design_screenshot_info.json
+- optimized_sensitivity_heatmap.png
+- optimized_sensitivity_summary.json
+- optimized_sensitivity_surface.png
+- README_PROJECT7_OUTPUTS.md
+- terminal_summary.txt
+- writeup_inputs.md
